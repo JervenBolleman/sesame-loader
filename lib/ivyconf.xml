@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<ivysettings>
+	
+	<settings  defaultResolver="expasy4j-libs">
+		<caches defaultCacheDir="${repository.cache}" >
+			<cache name="remote" basedir="${repository.cache}" />
+			<cache name="local" basedir="${repository.cache}/local" useOrigin="true"/>
+		</caches>
+	</settings>
+	
+	<resolvers>
+		<chain name="expasy4j-libs" returnFirst="true">
+
+			<filesystem name="expasy4j-libs-local" checkmodified="true">
+				<artifact pattern="${repository.dir}/[organisation]/[module]/[revision]/[artifact].[ext]" />
+				<ivy pattern="${repository.dir}/[organisation]/[module]/[revision]/ivy.xml" />
+			</filesystem>
+
+			<ssh name="expasy4j-libs-remote" checkmodified="true" user="${repository.user}" host="${repository.host}" keyFile="${scp.keyfile}">
+  				<ivy pattern="${repository.remotePath}/[organisation]/[module]/[revision]/ivy.xml"/>
+  				<artifact pattern="${repository.remotePath}/[organisation]/[module]/[revision]/[artifact].[ext]"/>
+			</ssh>
+			 
+			<!--
+			<url name="expasy4j-libs-remote" checkmodified="true">
+				<artifact pattern="${repository.url}/[organisation]/[module]/[revision]/[artifact].[ext]" />
+				<ivy pattern="${repository.url}/[organisation]/[module]/[revision]/ivy.xml" />
+			</url>
+			-->
+			
+		</chain>
+	</resolvers>
+
+</ivysettings>
