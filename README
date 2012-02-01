@@ -1,14 +1,12 @@
 This is a small utility that uses multiple threads to load data into a RDF triple store using
-the sesame API. Its currently bound to owlim-se. Unfortunatly to get an OWLIM-se jar you need 
-to contect ontotext. 
-
+the sesame API. You can load it into a native store from sesame or with some work into OWLIM-se.
+Unfortunatly to get an OWLIM-se jar you need  to contact ontotext. 
 
 Things to improve memory usage. 
-Move to maven and remove dependencies on internal sib infrastructure.
 
 HOW TO USE
 cd sesame-loader/
-java -cp lib/lucene-core.jar:lib/crypto.jar:lib/owlim-se.jar:lib/openrdf-sesame-onejar.jar:lib/slf4j-log4j12.jar:lib/slf4j-api.jar:lib/jopt-simple.jar:dist/sesame-loader.jar:lib/log4j.jar:lib/trove.jar:conf/ loader -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5
+java -cp lib/lucene-core.jar:lib/crypto.jar:lib/owlim-se.jar:lib/openrdf-sesame-onejar.jar:lib/slf4j-log4j12.jar:lib/slf4j-api.jar:lib/jopt-simple.jar:dist/sesame-loader.jar:lib/log4j.jar:lib/trove.jar:conf/ loader -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5 -databaseProvider $6
 
 Where $2 is the location on disk where OWLIM should store its files. $3 is how often you want to commit to the backend. $4 is the number of threads you want to use $5 is a baseUri i.e. http://purl.uniprot.org/uniprot/
 $1 is the file you are loading. Set the java options and Owlim options as usual. 
