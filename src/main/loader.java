@@ -96,7 +96,7 @@ public class loader
         else if ("owlim".equalsIgnoreCase(databaseProvider))
             return new OwlimRepositoryManager(dataFileLocation);
         else
-            throw new RuntimeException("Don't know databaseProvider");
+            throw new RuntimeException("Don't know databaseProvider:"+databaseProvider);
     }
 
     private void createPushers(Integer commitEveryXStatements, int threads, RepositoryManager connection)

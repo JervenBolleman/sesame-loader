@@ -1,17 +1,16 @@
 package com.github.sesameloader.owlim;
 
+import com.github.sesameloader.RepositoryManager;
+import com.ontotext.trree.OwlimSchemaRepository;
 import java.io.File;
-
+import java.util.concurrent.TimeUnit;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.repository.sail.SailRepositoryConnection;
 import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.ontotext.trree.OwlimSchemaRepository;
-import com.github.sesameloader.RepositoryManager;
-import java.util.concurrent.TimeUnit;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.repository.sail.SailRepositoryConnection;
 
 public class OwlimRepositoryManager
         implements RepositoryManager
