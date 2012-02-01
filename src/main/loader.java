@@ -113,13 +113,16 @@ public class loader
 	private void load(File file, String baseUri)
 	    throws FileNotFoundException, IOException, RepositoryException, SailException
 	{
+
 		try
 		{
-			final String name = file.getName();
-			if (name.endsWith(".gz"))
-				load(new GZIPInputStream(new FileInputStream(file)), name.substring(0, name.length() - 3), baseUri);
+			if (file.isDirectory())
+			{
+				for (File infile : file.listFiles())
+					loadFile(infile, baseUri);
+			}
 			else
-				load(new FileInputStream(file), name, baseUri);
+				loadFile(file, baseUri);
 			exec.shutdown();
 			while (!exec.isTerminated())
 				try
@@ -133,6 +136,16 @@ public class loader
 		{
 			manager.shutDown();
 		}
+	}
+
+	private void loadFile(File file, String baseUri)
+	    throws FileNotFoundException, IOException, RepositoryException, SailException
+	{
+		final String name = file.getName();
+		if (name.endsWith(".gz"))
+			load(new GZIPInputStream(new FileInputStream(file)), name.substring(0, name.length() - 3), baseUri);
+		else
+			load(new FileInputStream(file), name, baseUri);
 	}
 
 	private void load(InputStream stream, String filename, String baseUri)
