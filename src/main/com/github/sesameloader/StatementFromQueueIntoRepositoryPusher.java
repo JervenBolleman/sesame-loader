@@ -42,6 +42,7 @@ public class StatementFromQueueIntoRepositoryPusher
 			while (!this.finished || !queue.isEmpty())
 				counter = takeStatementFromQueueAddToConnection(counter);
 			connection.commit();
+                        connection.close();
 		} catch (RepositoryException e)
 		{
 			log.error("Pusher failed " + e.getMessage());
