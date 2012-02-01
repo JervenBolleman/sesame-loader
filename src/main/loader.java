@@ -1,3 +1,9 @@
+/*
+ * Copyright Swiss Institute of Bioinformatics (http://www.isb-sib.ch/) (c) 2012.
+ *
+ * Licensed under the Aduna BSD-style license.
+ */
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -127,6 +133,14 @@ public class loader
 		} finally
 		{
 			repository.shutDown();
+			while (repository.isShuttingDown())
+				try
+				{
+					Thread.sleep(TimeUnit.SECONDS.toMillis(10));
+				} catch (InterruptedException e)
+				{
+					Thread.interrupted();
+				}
 		}
 	}
 
