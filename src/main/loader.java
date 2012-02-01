@@ -23,21 +23,23 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
-import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
-import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.sail.SailException;
-import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.github.sesameloader.RepositoryManager;
+import com.github.sesameloader.StatementFromQueueIntoRepositoryPusher;
+import com.github.sesameloader.StatementIntoQueuePusher;
+import com.github.sesameloader.owlim.OwlimRepositoryManager;
+import com.github.sesameloader.sesame.NativeRepositoryManager;
+
 
 public class loader
 {
@@ -45,13 +47,14 @@ public class loader
 	Logger log = LoggerFactory.getLogger(loader.class);
 	volatile boolean finished = false;
 	private ExecutorService exec;
-	final Repository repository;
+	private final RepositoryManager manager;
 
-	public loader(File dataDir, Integer commitXStatements, Integer threads) throws SailException, RepositoryException
+	public loader(File dataDir, Integer commitXStatements, Integer threads, String providerType) throws SailException,
+	    RepositoryException
 	{
-		repository = getRepository(dataDir);
-		RepositoryConnection connection = getConnection(repository);
-		createPushers(commitXStatements, threads, connection);
+
+		manager = getRepositoryManager(dataDir, providerType);
+		createPushers(commitXStatements, threads, manager);
 	}
 
 	/**
@@ -72,46 +75,43 @@ public class loader
 		OptionSpec<Integer> commitEveryXStatements = parser.accepts("commitInterval").withRequiredArg().required()
 		    .ofType(Integer.class);
 		OptionSpec<Integer> threads = parser.accepts("pushThreads").withRequiredArg().ofType(Integer.class).required();
+		OptionSpec<String> dataBaseProvider = parser.accepts("databaseProvider").withRequiredArg().ofType(String.class)
+		    .required();
 
 		OptionSet options = parser.parse(args);
 		if (options.has(infile) && options.has(dataFile) && options.has(baseUri) && options.has(commitEveryXStatements)
 		    && options.has(threads))
 		{
 			final loader loader = new loader(options.valueOf(dataFile), options.valueOf(commitEveryXStatements),
-			    options.valueOf(threads));
+			    options.valueOf(threads), options.valueOf(dataBaseProvider));
 			loader.load(options.valueOf(infile), options.valueOf(baseUri));
 		}
 	}
 
-	private RepositoryConnection getConnection(Repository repository)
-	    throws RepositoryException
+	private RepositoryManager getRepositoryManager(File dataFileLocation, String databaseProvider)
+	    throws RepositoryException, SailException
 	{
-		final RepositoryConnection connection = repository.getConnection();
-		connection.setAutoCommit(false);
-		return connection;
+
+		if ("native".equalsIgnoreCase(databaseProvider))
+			return new NativeRepositoryManager(dataFileLocation);
+		else if ("owlim".equalsIgnoreCase(databaseProvider))
+			return new OwlimRepositoryManager(dataFileLocation);
+		else
+			throw new RuntimeException("Don't know databaseProvider");
 	}
 
-	private Repository getRepository(File dataFileLocation)
+	private void createPushers(Integer commitEveryXStatements, int threads, RepositoryManager connection)
 	    throws RepositoryException
-	{
-	    Repository repository = new SailRepository(new NativeStore(dataFileLocation));
-		repository.setDataDir(dataFileLocation);
-		repository.initialize();
-		log.debug("Repository initialized");
-		return repository;
-	}
-
-	private void createPushers(Integer commitEveryXStatements, int threads, RepositoryConnection connection)
 	{
 		exec = Executors.newFixedThreadPool(threads);
 		List<Future<?>> futures = new ArrayList<Future<?>>();
 		for (int i = 0; i < threads; i++)
-			futures.add(exec.submit(new StatementFromQueueIntoRepositoryPusher(this, queue, commitEveryXStatements,
+			futures.add(exec.submit(new StatementFromQueueIntoRepositoryPusher(queue, commitEveryXStatements,
 			    connection)));
 	}
 
 	private void load(File file, String baseUri)
-	    throws FileNotFoundException, IOException, RepositoryException
+	    throws FileNotFoundException, IOException, RepositoryException, SailException
 	{
 		try
 		{
@@ -131,15 +131,7 @@ public class loader
 				}
 		} finally
 		{
-			repository.shutDown();
-			while (repository.isShuttingDown())
-				try
-				{
-					Thread.sleep(TimeUnit.SECONDS.toMillis(10));
-				} catch (InterruptedException e)
-				{
-					Thread.interrupted();
-				}
+			manager.shutDown();
 		}
 	}
 
@@ -148,7 +140,7 @@ public class loader
 	{
 		RDFFormat format = RDFFormat.forFileName(filename);
 		RDFParser rdfParser = Rio.createParser(format);
-		rdfParser.setRDFHandler(new StatementIntoQueuePusher(this, queue));
+		rdfParser.setRDFHandler(new StatementIntoQueuePusher(queue));
 		try
 		{
 			rdfParser.parse(stream, baseUri);
