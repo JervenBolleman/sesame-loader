@@ -1,4 +1,4 @@
-Sesame Loader, Copyright (C) 2012 Swiss Instute of Bioinformatics.
+Sesame Loader, Copyright (C) 2012 Swiss Institute of Bioinformatics, Peter Ansell.
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
