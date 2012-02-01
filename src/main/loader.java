@@ -149,10 +149,11 @@ public class loader
 	}
 
 	private void load(InputStream stream, String filename, String baseUri)
-	    throws IOException
+	    throws IOException, RepositoryException
 	{
 		RDFFormat format = RDFFormat.forFileName(filename);
 		RDFParser rdfParser = Rio.createParser(format);
+                rdfParser.setValueFactory(manager.getConnection().getValueFactory());
 		rdfParser.setRDFHandler(new StatementIntoQueuePusher(queue));
 		try
 		{
