@@ -17,7 +17,9 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
+import org.openrdf.OpenRDFException;
 import org.openrdf.model.Statement;
+import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.sail.SailRepository;
@@ -26,21 +28,18 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.rio.RDFParseException;
 import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
-import org.openrdf.rio.helpers.RDFHandlerBase;
 import org.openrdf.sail.SailException;
+import org.openrdf.sail.nativerdf.NativeStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.ontotext.trree.OwlimSchemaRepository;
-
 
 public class loader
 {
 	private final BlockingQueue<Statement> queue = new ArrayBlockingQueue<Statement>(1000);
-	private Logger log = LoggerFactory.getLogger(loader.class);
-	private volatile boolean finished = false;
+	Logger log = LoggerFactory.getLogger(loader.class);
+	volatile boolean finished = false;
 	private ExecutorService exec;
-	final OwlimSchemaRepository repository;
+	final Repository repository;
 
 	public loader(File dataDir, Integer commitXStatements, Integer threads) throws SailException, RepositoryException
 	{
@@ -78,18 +77,18 @@ public class loader
 		}
 	}
 
-	private RepositoryConnection getConnection(OwlimSchemaRepository repository)
+	private RepositoryConnection getConnection(Repository repository)
 	    throws RepositoryException
 	{
-		final RepositoryConnection connection = new SailRepository(repository).getConnection();
+		final RepositoryConnection connection = repository.getConnection();
 		connection.setAutoCommit(false);
 		return connection;
 	}
 
-	private OwlimSchemaRepository getRepository(File dataFileLocation)
-	    throws SailException
+	private Repository getRepository(File dataFileLocation)
+	    throws RepositoryException
 	{
-		OwlimSchemaRepository repository = new OwlimSchemaRepository();
+	    Repository repository = new SailRepository(new NativeStore(dataFileLocation));
 		repository.setDataDir(dataFileLocation);
 		repository.initialize();
 		log.debug("Repository initialized");
@@ -101,12 +100,12 @@ public class loader
 		exec = Executors.newFixedThreadPool(threads);
 		List<Future<?>> futures = new ArrayList<Future<?>>();
 		for (int i = 0; i < threads; i++)
-			futures.add(exec.submit(new StatementFromQueueIntoRepositoryPusher(queue, commitEveryXStatements,
+			futures.add(exec.submit(new StatementFromQueueIntoRepositoryPusher(this, queue, commitEveryXStatements,
 			    connection)));
 	}
 
 	private void load(File file, String baseUri)
-	    throws FileNotFoundException, IOException, SailException
+	    throws FileNotFoundException, IOException, RepositoryException
 	{
 		try
 		{
@@ -135,7 +134,7 @@ public class loader
 	{
 		RDFFormat format = RDFFormat.forFileName(filename);
 		RDFParser rdfParser = Rio.createParser(format);
-		rdfParser.setRDFHandler(new StatementIntoQueuePusher(queue));
+		rdfParser.setRDFHandler(new StatementIntoQueuePusher(this, queue));
 		try
 		{
 			rdfParser.parse(stream, baseUri);
@@ -149,93 +148,6 @@ public class loader
 		{
 			finished = true;
 			log.info(filename + "read");
-		}
-	}
-
-	private class StatementIntoQueuePusher
-	    extends RDFHandlerBase
-	{
-
-		private final BlockingQueue<Statement> queue;
-
-		public StatementIntoQueuePusher(BlockingQueue<Statement> queue)
-		{
-			super();
-			this.queue = queue;
-		}
-
-		@Override
-		public void handleStatement(Statement st)
-		{
-			try
-			{
-				queue.put(st);
-			} catch (InterruptedException e)
-			{
-				Thread.currentThread().interrupt();
-			}
-		}
-	}
-
-	private class StatementFromQueueIntoRepositoryPusher
-	    implements Runnable
-	{
-		private final BlockingQueue<Statement> queue;
-
-		private RepositoryConnection connection;
-		private final int commitEveryStatements;
-
-		public StatementFromQueueIntoRepositoryPusher(BlockingQueue<Statement> queue, int commitEveryStatements,
-		    RepositoryConnection connection)
-		{
-			super();
-			this.queue = queue;
-			this.commitEveryStatements = commitEveryStatements;
-			this.connection = connection;
-		}
-
-		@Override
-		public void run()
-		{
-			int counter = 0;
-			if (log.isDebugEnabled())
-				log.debug("Running into repository pusher");
-			try
-			{
-				while (!finished || !queue.isEmpty())
-					counter = takeStatementFromQueueAddToConnection(counter);
-				connection.commit();
-			} catch (RepositoryException e)
-			{
-				log.error("Pusher failed " + e.getMessage());
-			}
-		}
-
-		private int takeStatementFromQueueAddToConnection(int counter)
-		    throws RepositoryException
-		{
-			{
-				try
-				{
-					final Statement st = queue.poll(100, TimeUnit.MILLISECONDS);
-					if (st != null)
-					{
-						connection.add(st);
-						counter++;
-						if (counter % commitEveryStatements == 0)
-						{
-							if (log.isDebugEnabled())
-								log.debug("Commiting into the connection pusher");
-							connection.commit();
-						}
-
-					}
-				} catch (InterruptedException e1)
-				{
-					Thread.currentThread().interrupt();
-				}
-			}
-			return counter;
 		}
 	}
 }
