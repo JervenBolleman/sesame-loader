@@ -16,7 +16,7 @@ public class StatementFromQueueIntoRepositoryPusher
 
 	private final BlockingQueue<Statement> queue;
 
-	private RepositoryConnection connection;
+	private final RepositoryConnection connection;
 	private final int commitEveryStatements;
 	private volatile boolean finished;
 
@@ -74,4 +74,9 @@ public class StatementFromQueueIntoRepositoryPusher
 		}
 		return counter;
 	}
+
+    public void setFinished(boolean b)
+    {
+        finished =true;
+    }
 }
