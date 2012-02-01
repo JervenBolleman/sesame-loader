@@ -10,18 +10,18 @@
 	<version>0.1.0-SNAPSHOT</version>
 
 	<description>Bulk loader for sesame repositories</description>
-	<url>https://github.com/ansell</url>
+	<url>https://github.com/jervenbolleman</url>
 
 	<licenses>
 		<license>
-			<name>Currently unknown</name>
+			<name>BSD-style</name>
 		</license>
 	</licenses>
 
 	<scm>
-		<developerConnection>git@github.com:ansell/sesame-loader.git</developerConnection>
-		<connection>git://github.com/ansell/sesame-loader.git</connection>
-		<url>https://github.com/ansell/sesame-loader</url>
+		<developerConnection>git@github.com:jervenbolleman/sesame-loader.git</developerConnection>
+		<connection>git://github.com/jervenbolleman/sesame-loader.git</connection>
+		<url>https://github.com/jervenbolleman/sesame-loader</url>
 	</scm>
 
 	<properties>
@@ -31,6 +31,7 @@
 	</properties>
 
 	<dependencies>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -309,7 +310,6 @@
 			<layout>default</layout>
 			<url>http://repo.aduna-software.org/maven2/releases</url>
 		</repository>
-
 	</repositories>
 
 	<profiles>
