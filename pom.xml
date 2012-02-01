@@ -64,6 +64,11 @@
 			<artifactId>sesame-repository-api</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-rio-rdfxml</artifactId>
+		</dependency>
+
 		<!-- Logging -->
 
 		<dependency>
@@ -132,6 +137,12 @@
 			<dependency>
 				<groupId>org.openrdf.sesame</groupId>
 				<artifactId>sesame-repository-api</artifactId>
+				<version>${sesame.version}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.openrdf.sesame</groupId>
+				<artifactId>sesame-rio-rdfxml</artifactId>
 				<version>${sesame.version}</version>
 			</dependency>
 
@@ -211,11 +222,42 @@
 					</configuration>
 					<executions>
 						<execution>
+							<id>test-jar</id>
 							<goals>
 								<goal>test-jar</goal>
 							</goals>
 						</execution>
+						<execution>
+							<id>full-jar</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+							<configuration>
+								<archive>
+									<manifest>
+										<addClasspath>true</addClasspath>
+										<mainClass>fully.qualified.MainClass</mainClass>
+									</manifest>
+								</archive>
+							</configuration>
+						</execution>
 					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-assembly-plugin</artifactId>
+					<version>2.2.2</version>
+					<configuration>
+						<archive>
+							<manifest>
+								<mainClass>loader</mainClass>
+							</manifest>
+						</archive>
+						<descriptors>
+							<descriptor>assembly.xml</descriptor>
+						</descriptors>
+					</configuration>
 				</plugin>
 
 				<plugin>
