@@ -156,6 +156,7 @@ public class loader
     {
         RDFFormat format = RDFFormat.forFileName(filename);
         RDFParser rdfParser = Rio.createParser(format);
+        log.debug("parsing " + filename + format.toString());
         rdfParser.setValueFactory(manager.getConnection().getValueFactory());
         rdfParser.setRDFHandler(new StatementIntoQueuePusher(queue));
         try
