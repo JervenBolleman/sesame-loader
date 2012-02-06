@@ -50,7 +50,7 @@ public class OwlimRepositoryManager
             } catch (InterruptedException e)
             {
 		//If this thread is interupted we want to check if the repository is shutdown.
-		//If it is then we exit the loop normally. Raising the interrupted status in
+		//If it is then we exit the loop normally. Clearing the interrupted status in
 		//case some other part of a program is interested in it.
                 Thread.interrupted();
             }
