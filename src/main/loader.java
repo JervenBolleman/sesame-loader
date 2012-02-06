@@ -137,6 +137,8 @@ public class loader
                 }
         } finally
         {
+            for (StatementFromQueueIntoRepositoryPusher pusher:pushers)
+                pusher.setFinished(true);
             manager.shutDown();
         }
     }
