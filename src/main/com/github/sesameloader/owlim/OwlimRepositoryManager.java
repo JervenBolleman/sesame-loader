@@ -42,12 +42,16 @@ public class OwlimRepositoryManager
             throws SailException
     {
         repository.shutDown();
+	//Wait for the repository is shutdown
         while (repository.isShuttingDown())
             try
             {
                 Thread.sleep(TimeUnit.SECONDS.toMillis(10));
             } catch (InterruptedException e)
             {
+		//If this thread is interupted we want to check if the repository is shutdown.
+		//If it is then we exit the loop normally. Raising the interrupted status in
+		//case some other part of a program is interested in it.
                 Thread.interrupted();
             }
     }
