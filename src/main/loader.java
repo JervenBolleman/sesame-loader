@@ -162,6 +162,8 @@ public class loader
         RDFParser rdfParser = Rio.createParser(format);
         log.debug("parsing " + filename + format.toString());
         rdfParser.setValueFactory(manager.getConnection().getValueFactory());
+        rdfParser.setVerifyData(false);
+        rdfParser.setPreserveBNodeIDs(false);
         rdfParser.setRDFHandler(new StatementIntoQueuePusher(queue));
         try
         {
