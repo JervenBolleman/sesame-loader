@@ -158,7 +158,10 @@ public class loader
     {
         RDFFormat format = RDFFormat.forFileName(filename);
         if (format == null)
+        {
+            log.error("Could not determine RDF format for filename="+filename);
             return;
+        }
         RDFParser rdfParser = Rio.createParser(format);
         log.debug("parsing " + filename + format.toString());
         rdfParser.setValueFactory(manager.getConnection().getValueFactory());
