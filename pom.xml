@@ -32,10 +32,10 @@
 
 	<dependencies>
 
-                <dependency>
+		<dependency>
 			<groupId>com.github</groupId>
 			<artifactId>owlim-shim</artifactId>
-                        <version>0.1.0-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -76,11 +76,11 @@
 			<artifactId>sesame-rio-rdfxml</artifactId>
 		</dependency>
 
-                <dependency>
-                    <groupId>org.openrdf.sesame</groupId>
-                    <artifactId>sesame-rio-turtle</artifactId>
-                    <version>${sesame.version}</version>
-                </dependency>
+		<dependency>
+			<groupId>org.openrdf.sesame</groupId>
+			<artifactId>sesame-rio-turtle</artifactId>
+			<version>${sesame.version}</version>
+		</dependency>
 
 		<!-- Logging -->
 
@@ -113,6 +113,12 @@
 
 	<dependencyManagement>
 		<dependencies>
+
+			<dependency>
+				<groupId>com.github</groupId>
+				<artifactId>owlim-shim</artifactId>
+				<version>0.1.0-SNAPSHOT</version>
+			</dependency>
 
 			<dependency>
 				<groupId>junit</groupId>
@@ -195,9 +201,156 @@
 	</dependencyManagement>
 
 	<build>
-		<sourceDirectory>src/main</sourceDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>appassembler-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>assemble</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<assembleDirectory>${project.basedir}/dist</assembleDirectory>
+					<configurationDirectory>conf/</configurationDirectory>
+					<copyConfigurationDirectory>true</copyConfigurationDirectory>
+					<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+					<extraJvmArguments>-Xms128m</extraJvmArguments>
+					<programs>
+						<program>
+							<mainClass>loader</mainClass>
+							<name>load-sesame-native</name>
+							<commandLineArguments>
+								<commandLineArgument>-databaseProvider native</commandLineArgument>
+							</commandLineArguments>
+						</program>
+						<program>
+							<mainClass>loader</mainClass>
+							<name>load-owlim</name>
+							<commandLineArguments>
+								<commandLineArgument>-databaseProvider owlim</commandLineArgument>
+							</commandLineArguments>
+						</program>
+					</programs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+						</manifest>
+						<manifestEntries>
+							<Bundle-Description>${project.description}</Bundle-Description>
+							<Implementation-Version>${project.version}</Implementation-Version>
+						</manifestEntries>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>test-jar</id>
+						<goals>
+							<goal>test-jar</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>full-jar</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<archive>
+								<manifest>
+									<addClasspath>true</addClasspath>
+									<mainClass>fully.qualified.MainClass</mainClass>
+								</manifest>
+							</archive>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>loader</mainClass>
+						</manifest>
+					</archive>
+					<descriptors>
+						<descriptor>assembly.xml</descriptor>
+					</descriptors>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<version>true</version>
+					<show>public</show>
+					<quiet>true</quiet>
+					<encoding>UTF-8</encoding>
+					<windowtitle>${project.name} ${project.version}</windowtitle>
+					<doctitle>${project.name} ${project.version}</doctitle>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+					<verbose>true</verbose>
+				</configuration>
+			</plugin>
+		</plugins>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>appassembler-maven-plugin</artifactId>
+					<version>1.2</version>
+				</plugin>
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-surefire-plugin</artifactId>
@@ -207,92 +360,24 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-source-plugin</artifactId>
 					<version>2.1.2</version>
-					<executions>
-						<execution>
-							<id>attach-sources</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
 				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-jar-plugin</artifactId>
 					<version>2.3.2</version>
-					<configuration>
-						<archive>
-							<manifest>
-								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-								<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-							</manifest>
-							<manifestEntries>
-								<Bundle-Description>${project.description}</Bundle-Description>
-								<Implementation-Version>${project.version}</Implementation-Version>
-							</manifestEntries>
-						</archive>
-					</configuration>
-					<executions>
-						<execution>
-							<id>test-jar</id>
-							<goals>
-								<goal>test-jar</goal>
-							</goals>
-						</execution>
-						<execution>
-							<id>full-jar</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-							<configuration>
-								<archive>
-									<manifest>
-										<addClasspath>true</addClasspath>
-										<mainClass>fully.qualified.MainClass</mainClass>
-									</manifest>
-								</archive>
-							</configuration>
-						</execution>
-					</executions>
 				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>2.2.2</version>
-					<configuration>
-						<archive>
-							<manifest>
-								<mainClass>loader</mainClass>
-							</manifest>
-						</archive>
-						<descriptors>
-							<descriptor>assembly.xml</descriptor>
-						</descriptors>
-					</configuration>
 				</plugin>
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>2.8</version>
-					<executions>
-						<execution>
-							<id>attach-javadocs</id>
-							<goals>
-								<goal>jar</goal>
-							</goals>
-						</execution>
-					</executions>
-					<configuration>
-						<version>true</version>
-						<show>public</show>
-						<quiet>true</quiet>
-						<encoding>UTF-8</encoding>
-						<windowtitle>${project.name} ${project.version}</windowtitle>
-						<doctitle>${project.name} ${project.version}</doctitle>
-					</configuration>
 				</plugin>
 
 				<plugin>
@@ -305,11 +390,6 @@
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
 					<version>2.3.2</version>
-					<configuration>
-						<source>1.6</source>
-						<target>1.6</target>
-						<verbose>true</verbose>
-					</configuration>
 				</plugin>
 			</plugins>
 		</pluginManagement>
