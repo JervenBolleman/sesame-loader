@@ -1,3 +1,4 @@
+package com.github.sesameloader;
 /*
  * Copyright Swiss Institute of Bioinformatics (http://www.isb-sib.ch/) (c) 2012.
  *
@@ -34,23 +35,20 @@ import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.sesameloader.RepositoryManager;
-import com.github.sesameloader.StatementFromQueueIntoRepositoryPusher;
-import com.github.sesameloader.StatementIntoQueuePusher;
 import com.github.sesameloader.owlim.OwlimRepositoryManager;
 import com.github.sesameloader.sesame.NativeRepositoryManager;
 
-public class loader
+public class LoaderMain
 {
 
     private final BlockingQueue<Statement> queue = new ArrayBlockingQueue<Statement>(1000);
-    private final Logger log = LoggerFactory.getLogger(loader.class);
+    private final Logger log = LoggerFactory.getLogger(LoaderMain.class);
     volatile boolean finished = false;
     private ExecutorService exec;
     private final RepositoryManager manager;
     private final List<StatementFromQueueIntoRepositoryPusher> pushers = new ArrayList<StatementFromQueueIntoRepositoryPusher>();
 
-    public loader(File dataDir, Integer commitXStatements, Integer threads, String providerType) throws SailException,
+    public LoaderMain(File dataDir, Integer commitXStatements, Integer threads, String providerType) throws SailException,
             RepositoryException
     {
 
@@ -81,7 +79,7 @@ public class loader
         if (options.has(infile) && options.has(dataFile) && options.has(baseUri) && options.has(commitEveryXStatements)
                 && options.has(threads))
         {
-            final loader loader = new loader(options.valueOf(dataFile), options.valueOf(commitEveryXStatements),
+            final LoaderMain loader = new LoaderMain(options.valueOf(dataFile), options.valueOf(commitEveryXStatements),
                     options.valueOf(threads), options.valueOf(dataBaseProvider));
             loader.load(options.valueOf(infile), options.valueOf(baseUri));
         }
