@@ -218,7 +218,6 @@
 					<configurationDirectory>conf/</configurationDirectory>
 					<copyConfigurationDirectory>true</copyConfigurationDirectory>
 					<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
-					<extraJvmArguments>-Xms128m</extraJvmArguments>
 					<programs>
 						<program>
 							<mainClass>loader</mainClass>
