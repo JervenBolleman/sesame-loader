@@ -220,14 +220,14 @@
 					<includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
 					<programs>
 						<program>
-							<mainClass>loader</mainClass>
+							<mainClass>com.github.sesameloader.LoaderMain</mainClass>
 							<name>load-sesame-native</name>
 							<commandLineArguments>
 								<commandLineArgument>-databaseProvider native</commandLineArgument>
 							</commandLineArguments>
 						</program>
 						<program>
-							<mainClass>loader</mainClass>
+							<mainClass>com.github.sesameloader.LoaderMain</mainClass>
 							<name>load-owlim</name>
 							<commandLineArguments>
 								<commandLineArgument>-databaseProvider owlim</commandLineArgument>
@@ -298,7 +298,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>loader</mainClass>
+							<mainClass>com.github.sesameloader.LoaderMain</mainClass>
 						</manifest>
 					</archive>
 					<descriptors>
