@@ -53,8 +53,6 @@ public class LoaderMain
     /**
      * Creates an instance of the LoaderMain class for a single bulk loading process using the given data directory as the repository location. 
      * 
-     * The repository is initialised before any loads and shutdown after a single load.
-     * 
      * @param dataDir The directory where the repository keeps its data files.
      * @param providerType The type of the repository to be used. Currently support "native" and "owlim" as values.
      * @param commitXStatements The number of statements to commit in each transaction.
@@ -71,8 +69,6 @@ public class LoaderMain
 
     /**
      * Creates an instance of the LoaderMain class for a single bulk loading process using the given repository manager to access the repository.
-     * 
-     * The repository manager, and the underlying repository are shutdown after a single load.
      * 
      * @param nextManager The repository manager to use when accessing the repository.
      * @param commitXStatements The number of statements to commit in each transaction.
@@ -121,9 +117,18 @@ public class LoaderMain
         if (options.has(infile) && options.has(dataFile) && options.has(baseUri) && options.has(commitEveryXStatements)
                 && options.has(threads))
         {
-            final LoaderMain loader = new LoaderMain(options.valueOf(dataFile), options.valueOf(dataBaseProvider),
-                    options.valueOf(commitEveryXStatements), options.valueOf(threads));
-            loader.load(options.valueOf(infile), options.valueOf(baseUri));
+            RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(options.valueOf(dataFile), options.valueOf(dataBaseProvider));
+            
+            try
+            {
+                final LoaderMain loader = new LoaderMain(repositoryManager,
+                        options.valueOf(commitEveryXStatements), options.valueOf(threads));
+                loader.load(options.valueOf(infile), options.valueOf(baseUri));
+            }
+            finally
+            {
+                repositoryManager.shutDown();
+            }
         }
     }
 
@@ -202,7 +207,6 @@ public class LoaderMain
         {
             for (StatementFromQueueIntoRepositoryPusher pusher:pushers)
                 pusher.setFinished(true);
-            manager.shutDown();
         }
     }
     
@@ -243,7 +247,6 @@ public class LoaderMain
         {
             for (StatementFromQueueIntoRepositoryPusher pusher:pushers)
                 pusher.setFinished(true);
-            manager.shutDown();
         }
     }
     
