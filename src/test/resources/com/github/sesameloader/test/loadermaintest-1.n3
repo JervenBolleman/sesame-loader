@@ -1,0 +1,7 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix edu: <http://www.example.org/> .
+
+<http://www.princeton.edu> geo:lat "40.35" ; geo:long "-74.66" .
+<http://www.cs.princeton.edu> dc:title "Department of Computer Science" .
+<http://www.princeton.edu> edu:hasDept <http://www.cs.princeton.edu> .
