@@ -2,6 +2,7 @@ package com.github.sesameloader.sesame;
 
 import java.io.File;
 
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -44,5 +45,11 @@ public class NativeRepositoryManager
 	{
 		repository.shutDown();
 	}
+
+    @Override
+    public ValueFactory getValueFactory()
+    {
+        return repository.getValueFactory();
+    }
 
 }

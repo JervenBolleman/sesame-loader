@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:geo="http://www. w3.org/2003/01/geo/wgs84_pos#"
+    xmlns:edu="http://www.example.org/">
+
+    <rdf:Description rdf:about="http://www.princeton.edu">
+        <geo:lat>40.35</geo:lat>
+        <geo:long>-74.66</geo:long>
+        <edu:hasDept rdf:resource="http://www.cs.princeton.edu"/>
+    </rdf:Description>
+    
+    <rdf:Description rdf:about="http://www.cs.princeton.edu">
+        <dc:title>Department of Computer Science</dc:title>
+    </rdf:Description>
+
+</rdf:RDF>
