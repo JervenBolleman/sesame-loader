@@ -1,5 +1,6 @@
 package com.github.sesameloader;
 
+import org.openrdf.model.ValueFactory;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.sail.SailException;
@@ -8,9 +9,11 @@ import org.openrdf.sail.SailException;
 public interface RepositoryManager
 {
 
-	public RepositoryConnection getConnection()
+	RepositoryConnection getConnection()
 	    throws RepositoryException;
 
-	public void shutDown()
+	void shutDown()
 	    throws SailException, RepositoryException;
+	
+	ValueFactory getValueFactory();
 }
