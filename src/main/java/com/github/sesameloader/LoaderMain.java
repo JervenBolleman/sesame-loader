@@ -24,6 +24,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.rio.RDFFormat;
@@ -58,13 +59,14 @@ public class LoaderMain
      * @param providerType The type of the repository to be used. Currently support "native" and "owlim" as values.
      * @param commitXStatements The number of statements to commit in each transaction.
      * @param threads The number of threads to use for loading.
+     * @param contexts The contexts to put the statements into.
      * @throws SailException If there is a Sail exception thrown during the creation of the repository.
      * @throws RepositoryException If there is a Repository exception thrown during the creation of the repository.
      */
-    public LoaderMain(File dataDir, String providerType, Integer commitXStatements, Integer threads) throws SailException,
+    public LoaderMain(File dataDir, String providerType, Integer commitXStatements, Integer threads, Resource... contexts) throws SailException,
             RepositoryException
     {
-        this(getRepositoryManager(dataDir, providerType), commitXStatements, threads);
+        this(getRepositoryManager(dataDir, providerType), commitXStatements, threads, contexts);
     }
 
     /**
@@ -75,13 +77,14 @@ public class LoaderMain
      * @param nextManager The repository manager to use when accessing the repository.
      * @param commitXStatements The number of statements to commit in each transaction.
      * @param threads The number of threads to use for loading.
+     * @param contexts The contexts to put the statements into.
      * @throws SailException If there is a Sail exception thrown during the creation of the repository.
      * @throws RepositoryException If there is a Repository exception thrown during the creation of the repository.
      */
-    public LoaderMain(RepositoryManager nextManager, Integer commitXStatements, Integer threads) throws SailException, RepositoryException
+    public LoaderMain(RepositoryManager nextManager, Integer commitXStatements, Integer threads, Resource... contexts) throws SailException, RepositoryException
     {
         this.manager = nextManager;
-        createPushers(commitXStatements, threads, manager);
+        createPushers(commitXStatements, threads, manager, contexts);
     }
     
     /**
@@ -142,9 +145,10 @@ public class LoaderMain
      * @param connection The repository manager to use when accessing the repository.
      * @param commitXStatements The number of statements to commit in each transaction.
      * @param threads The number of threads to use for loading.
+     * @param contexts The contexts to put the statements into.
      * @throws RepositoryException
      */
-    private void createPushers(Integer commitEveryXStatements, int threads, RepositoryManager connection)
+    private void createPushers(Integer commitEveryXStatements, int threads, RepositoryManager connection, Resource... contexts)
             throws RepositoryException
     {
         exec = Executors.newFixedThreadPool(threads);
@@ -152,7 +156,7 @@ public class LoaderMain
         for (int i = 0; i < threads; i++)
         {
             final StatementFromQueueIntoRepositoryPusher statementFromQueueIntoRepositoryPusher = new StatementFromQueueIntoRepositoryPusher(queue, commitEveryXStatements,
-                    connection);
+                    connection, contexts);
             pushers.add(statementFromQueueIntoRepositoryPusher);
             exec.submit(statementFromQueueIntoRepositoryPusher);
         }

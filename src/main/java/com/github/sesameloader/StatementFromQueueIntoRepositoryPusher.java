@@ -3,6 +3,7 @@ package com.github.sesameloader;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -22,13 +23,16 @@ public class StatementFromQueueIntoRepositoryPusher
 
 	private Logger log = LoggerFactory.getLogger(StatementFromQueueIntoRepositoryPusher.class);
 
+    private Resource[] contexts;
+
 	public StatementFromQueueIntoRepositoryPusher(BlockingQueue<Statement> queue, int commitEveryStatements,
-	    RepositoryManager manager) throws RepositoryException
+	    RepositoryManager manager, Resource... contexts) throws RepositoryException
 	{
 		super();
 		this.queue = queue;
 		this.commitEveryStatements = commitEveryStatements;
 		this.connection = manager.getConnection();
+		this.contexts = contexts;
 	}
 
 	@Override
@@ -68,7 +72,7 @@ public class StatementFromQueueIntoRepositoryPusher
 				final Statement st = queue.poll(100, TimeUnit.MILLISECONDS);
 				if (st != null)
 				{
-					connection.add(st);
+					connection.add(st, contexts);
 					counter++;
 					if (counter % commitEveryStatements == 0)
 					{
