@@ -23,12 +23,12 @@ public class StatementFromQueueIntoRepositoryPusher
 	private Logger log = LoggerFactory.getLogger(StatementFromQueueIntoRepositoryPusher.class);
 
 	public StatementFromQueueIntoRepositoryPusher(BlockingQueue<Statement> queue, int commitEveryStatements,
-	    RepositoryManager connection) throws RepositoryException
+	    RepositoryManager manager) throws RepositoryException
 	{
 		super();
 		this.queue = queue;
 		this.commitEveryStatements = commitEveryStatements;
-		this.connection = connection.getConnection();
+		this.connection = manager.getConnection();
 	}
 
 	@Override
@@ -42,10 +42,20 @@ public class StatementFromQueueIntoRepositoryPusher
 			while (!this.finished || !queue.isEmpty())
 				counter = takeStatementFromQueueAddToConnection(counter);
 			connection.commit();
-                        connection.close();
 		} catch (RepositoryException e)
 		{
 			log.error("Pusher failed " + e.getMessage());
+		}
+		finally
+		{
+            try
+            {
+                connection.close();
+            }
+            catch(RepositoryException e)
+            {
+                log.error("Error closing connection to repository", e);
+            }
 		}
 	}
 
