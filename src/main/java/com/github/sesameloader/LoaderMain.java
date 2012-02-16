@@ -111,7 +111,7 @@ public class LoaderMain
         }
     }
 
-    private void load(File file, String baseUri)
+    public void load(File file, String baseUri)
             throws FileNotFoundException, IOException, RepositoryException, SailException
     {
 
