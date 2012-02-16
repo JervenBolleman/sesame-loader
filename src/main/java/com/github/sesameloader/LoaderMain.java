@@ -319,7 +319,7 @@ public class LoaderMain
             throws IOException, RepositoryException, RDFParseException, RDFHandlerException, UnsupportedRDFormatException
     {    
         RDFParser rdfParser = Rio.createParser(format);
-        rdfParser.setValueFactory(manager.getConnection().getValueFactory());
+        rdfParser.setValueFactory(manager.getValueFactory());
         rdfParser.setVerifyData(false);
         rdfParser.setPreserveBNodeIDs(false);
         rdfParser.setRDFHandler(new StatementIntoQueuePusher(queue));
