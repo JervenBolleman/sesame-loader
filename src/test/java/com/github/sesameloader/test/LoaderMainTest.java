@@ -169,11 +169,15 @@ public class LoaderMainTest
             repositoryManagerBefore.shutDown();
         }
         
+        RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
         LoaderMain loader =
-                new LoaderMain(LoaderMain.getRepositoryManager(repositoryFolder, "native"), new Integer(20),
+                new LoaderMain(repositoryManager, new Integer(20),
                         new Integer(10));
         
         loader.load(testDataFileRdf, "http://test.example.org/test/load/file/native/rdf/base/uri");
+        
+        repositoryManager.shutDown();
         
         // NOTE: LoaderMain automatically shuts down the repository after a single call to load
         
@@ -230,11 +234,15 @@ public class LoaderMainTest
             repositoryManagerBefore.shutDown();
         }
         
+        RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
         LoaderMain loader =
-                new LoaderMain(LoaderMain.getRepositoryManager(repositoryFolder, "native"), new Integer(20),
+                new LoaderMain(repositoryManager, new Integer(20),
                         new Integer(10));
         
         loader.load(testDataFolder, "http://test.example.org/test/load/file/native/rdf/base/uri");
+        
+        repositoryManager.shutDown();
         
         // NOTE: LoaderMain automatically shuts down the repository after a single call to load
         
@@ -296,13 +304,17 @@ public class LoaderMainTest
             repositoryManagerBefore.shutDown();
         }
         
+        RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
         LoaderMain loader =
-                new LoaderMain(LoaderMain.getRepositoryManager(repositoryFolder, "native"), new Integer(20),
+                new LoaderMain(repositoryManager, new Integer(20),
                         new Integer(10));
         
         InputStream testResource1 = this.getClass().getResourceAsStream("loadermaintest-1.rdf");
         
         loader.load(testResource1, RDFFormat.RDFXML, "http://test.example.org/test/load/file/native/rdf/base/uri");
+        
+        repositoryManager.shutDown();
         
         // NOTE: LoaderMain automatically shuts down the repository after a single call to load
         
@@ -360,11 +372,15 @@ public class LoaderMainTest
             repositoryManagerBefore.shutDown();
         }
         
+        RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
         LoaderMain loader =
-                new LoaderMain(LoaderMain.getRepositoryManager(repositoryFolder, "native"), new Integer(20),
+                new LoaderMain(repositoryManager, new Integer(20),
                         new Integer(10));
         
         loader.load(testDataFileN3, "http://test.example.org/test/load/file/native/rdf/base/uri");
+        
+        repositoryManager.shutDown();
         
         // NOTE: LoaderMain automatically shuts down the repository after a single call to load
         
@@ -426,13 +442,17 @@ public class LoaderMainTest
             repositoryManagerBefore.shutDown();
         }
         
+        RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
         LoaderMain loader =
-                new LoaderMain(LoaderMain.getRepositoryManager(repositoryFolder, "native"), new Integer(20),
+                new LoaderMain(repositoryManager, new Integer(20),
                         new Integer(10));
         
         InputStream testResource1 = this.getClass().getResourceAsStream("loadermaintest-1.n3");
         
         loader.load(testResource1, RDFFormat.N3, "http://test.example.org/test/load/file/native/rdf/base/uri");
+        
+        repositoryManager.shutDown();
         
         // NOTE: LoaderMain automatically shuts down the repository after a single call to load
         
