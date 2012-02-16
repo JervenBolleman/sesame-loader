@@ -202,6 +202,67 @@ public class LoaderMainTest
     
     /**
      * Test method for
+     * {@link com.github.sesameloader.test.LoaderMain#load(java.io.File, java.lang.String)}.
+     * 
+     * @throws RepositoryException
+     * @throws SailException
+     * @throws IOException
+     * @throws FileNotFoundException
+     */
+    @Test
+    public void testLoadFileNativeDirectoryMixed() throws SailException, RepositoryException, FileNotFoundException, IOException
+    {
+        RepositoryManager repositoryManagerBefore = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
+        RepositoryConnection beforeConnection = null;
+        
+        try
+        {
+            beforeConnection = repositoryManagerBefore.getConnection();
+            Assert.assertEquals(0, beforeConnection.size());
+        }
+        finally
+        {
+            if(beforeConnection != null)
+            {
+                beforeConnection.close();
+            }
+            repositoryManagerBefore.shutDown();
+        }
+        
+        LoaderMain loader =
+                new LoaderMain(LoaderMain.getRepositoryManager(repositoryFolder, "native"), new Integer(20),
+                        new Integer(10));
+        
+        loader.load(testDataFolder, "http://test.example.org/test/load/file/native/rdf/base/uri");
+        
+        // NOTE: LoaderMain automatically shuts down the repository after a single call to load
+        
+        // Therefore, it is okay to create another repository manager here
+        
+        RepositoryManager repositoryManagerAfter = LoaderMain.getRepositoryManager(repositoryFolder, "native");
+        
+        RepositoryConnection afterConnection = null;
+        
+        try
+        {
+            afterConnection = repositoryManagerAfter.getConnection();
+            
+            Assert.assertTrue(afterConnection.size() > 0);
+        }
+        finally
+        {
+            if(afterConnection != null)
+            {
+                afterConnection.close();
+            }
+            
+            repositoryManagerAfter.shutDown();
+        }
+    }
+    
+    /**
+     * Test method for
      * {@link com.github.sesameloader.test.LoaderMain#load(java.io.InputStream, org.openrdf.rio.RDFFormat, java.lang.String)}
      * .
      * 
