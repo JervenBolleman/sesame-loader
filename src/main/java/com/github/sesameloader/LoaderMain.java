@@ -65,6 +65,8 @@ public class LoaderMain
             RepositoryException
     {
         this(getRepositoryManager(dataDir, providerType), commitXStatements, threads, contexts);
+        
+        log.warn("The repository will not automatically be shutdown. You are responsible for ensuring that the repository manager shuts the repository down correctly after loading");
     }
 
     /**
@@ -81,6 +83,17 @@ public class LoaderMain
     {
         this.manager = nextManager;
         createPushers(commitXStatements, threads, manager, contexts);
+    }
+    
+    /**
+     * This method helps in cases where the manager was created by this class, and otherwise could not be shutdown correctly.
+     * 
+     * @throws SailException
+     * @throws RepositoryException
+     */
+    public void shutdownRepositoryManager() throws SailException, RepositoryException
+    {
+        this.manager.shutDown();
     }
     
     /**
