@@ -1,6 +1,7 @@
 package com.github.sesameloader;
 
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.openrdf.model.Resource;
@@ -19,20 +20,22 @@ public class StatementFromQueueIntoRepositoryPusher
 
 	private final RepositoryConnection connection;
 	private final int commitEveryStatements;
-	private volatile boolean finished;
+    private volatile boolean finished = false;
+	private final CountDownLatch isDone;
 
 	private Logger log = LoggerFactory.getLogger(StatementFromQueueIntoRepositoryPusher.class);
 
     private Resource[] contexts;
 
 	public StatementFromQueueIntoRepositoryPusher(BlockingQueue<Statement> queue, int commitEveryStatements,
-	    RepositoryManager manager, Resource... contexts) throws RepositoryException
+	    RepositoryManager manager, CountDownLatch isDone, Resource... contexts) throws RepositoryException
 	{
 		super();
 		this.queue = queue;
 		this.commitEveryStatements = commitEveryStatements;
 		this.connection = manager.getConnection();
 		this.contexts = contexts;
+        this.isDone = isDone;
 	}
 
 	@Override
@@ -60,6 +63,7 @@ public class StatementFromQueueIntoRepositoryPusher
             {
                 log.error("Error closing connection to repository", e);
             }
+            isDone.countDown();
 		}
 	}
 

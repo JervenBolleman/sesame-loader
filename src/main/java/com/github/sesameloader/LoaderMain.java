@@ -39,20 +39,21 @@ import org.slf4j.LoggerFactory;
 
 import com.github.sesameloader.owlim.OwlimRepositoryManager;
 import com.github.sesameloader.sesame.NativeRepositoryManager;
+import java.util.concurrent.CountDownLatch;
 
 public class LoaderMain
 {
 
     private final BlockingQueue<Statement> queue = new ArrayBlockingQueue<Statement>(1000);
     private final Logger log = LoggerFactory.getLogger(LoaderMain.class);
-    volatile boolean finished = false;
-    private ExecutorService exec;
+    private final CountDownLatch isDone;
+    private final ExecutorService exec;
     private final RepositoryManager manager;
     private final List<StatementFromQueueIntoRepositoryPusher> pushers = new ArrayList<StatementFromQueueIntoRepositoryPusher>();
 
     /**
-     * Creates an instance of the LoaderMain class for a single bulk loading process using the given data directory as the repository location. 
-     * 
+     * Creates an instance of the LoaderMain class for a single bulk loading process using the given data directory as the repository location.
+     *
      * @param dataDir The directory where the repository keeps its data files.
      * @param providerType The type of the repository to be used. Currently support "native" and "owlim" as values.
      * @param commitXStatements The number of statements to commit in each transaction.
@@ -65,13 +66,13 @@ public class LoaderMain
             RepositoryException
     {
         this(getRepositoryManager(dataDir, providerType), commitXStatements, threads, contexts);
-        
+
         log.warn("The repository will not automatically be shutdown. You are responsible for ensuring that the repository manager shuts the repository down correctly after loading");
     }
 
     /**
      * Creates an instance of the LoaderMain class for a single bulk loading process using the given repository manager to access the repository.
-     * 
+     *
      * @param nextManager The repository manager to use when accessing the repository.
      * @param commitXStatements The number of statements to commit in each transaction.
      * @param threads The number of threads to use for loading.
@@ -82,12 +83,14 @@ public class LoaderMain
     public LoaderMain(RepositoryManager nextManager, Integer commitXStatements, Integer threads, Resource... contexts) throws SailException, RepositoryException
     {
         this.manager = nextManager;
+        exec = Executors.newFixedThreadPool(threads);
+        isDone = new CountDownLatch(threads);
         createPushers(commitXStatements, threads, manager, contexts);
     }
-    
+
     /**
      * This method helps in cases where the manager was created by this class, and otherwise could not be shutdown correctly.
-     * 
+     *
      * @throws SailException
      * @throws RepositoryException
      */
@@ -95,19 +98,19 @@ public class LoaderMain
     {
         this.manager.shutDown();
     }
-    
+
     /**
      * The main method for this class when run from the command line.
-     * 
+     *
      * Expects the following arguments:
-     * 
+     *
      * infile : The file or directory to load.
      * dataFile : The location of the repository on the file system.
      * baseUri : The base URI for all of the files that are being loaded.
      * commitInterval : The number of statements to aggregate into a single transaction when loading.
      * pushThreads : The number of threads to use when loading the repository.
      * databaseProvider : The type of the repository. Currently we support two values for this field, "native" for a Sesame Native repository and "owlim" for an OwlimSchemaRepository.
-     * 
+     *
      * @param args
      * @throws IOException
      * @throws FileNotFoundException
@@ -131,7 +134,7 @@ public class LoaderMain
                 && options.has(threads))
         {
             RepositoryManager repositoryManager = LoaderMain.getRepositoryManager(options.valueOf(dataFile), options.valueOf(dataBaseProvider));
-            
+
             try
             {
                 final LoaderMain loader = new LoaderMain(repositoryManager,
@@ -159,7 +162,7 @@ public class LoaderMain
 
     /**
      * Creates the bulk loader threads using the given parameters and the given repository manager for connections to the repository.
-     * 
+     *
      * @param connection The repository manager to use when accessing the repository.
      * @param commitXStatements The number of statements to commit in each transaction.
      * @param threads The number of threads to use for loading.
@@ -169,12 +172,10 @@ public class LoaderMain
     private void createPushers(Integer commitEveryXStatements, int threads, RepositoryManager connection, Resource... contexts)
             throws RepositoryException
     {
-        exec = Executors.newFixedThreadPool(threads);
-
         for (int i = 0; i < threads; i++)
         {
             final StatementFromQueueIntoRepositoryPusher statementFromQueueIntoRepositoryPusher = new StatementFromQueueIntoRepositoryPusher(queue, commitEveryXStatements,
-                    connection, contexts);
+                    connection, isDone, contexts);
             pushers.add(statementFromQueueIntoRepositoryPusher);
             exec.submit(statementFromQueueIntoRepositoryPusher);
         }
@@ -182,11 +183,11 @@ public class LoaderMain
 
     /**
      * This method loads RDF data in bulk using the given file. If the file is a directory, then every file in the directory will be loaded.
-     * 
-     * The format for the RDF files is determined for each file using the file extension. 
-     * 
+     *
+     * The format for the RDF files is determined for each file using the file extension.
+     *
      * The parsers are chosen based on the current registered Sesame Rio parsers.
-     * 
+     *
      * @param file The file or directory to load.
      * @param baseUri The base URI to use while loading the files.
      * @throws FileNotFoundException
@@ -207,28 +208,29 @@ public class LoaderMain
                 loadFileInternal(file, baseUri);
             for (StatementFromQueueIntoRepositoryPusher pusher:pushers)
                 pusher.setFinished(true);
-            exec.shutdown();
-            while (!exec.isTerminated())
-                try
-                {
+            try
+            {
+                isDone.await();
+                exec.shutdown();
+                while (!exec.isTerminated())
                     exec.awaitTermination(1, TimeUnit.SECONDS);
-                } catch (InterruptedException e)
-                {
-                    Thread.currentThread().interrupt();
-                }
+            } catch (InterruptedException ex)
+            {
+               Thread.currentThread().interrupt();
+            }
         } finally
         {
             for (StatementFromQueueIntoRepositoryPusher pusher:pushers)
                 pusher.setFinished(true);
         }
     }
-    
+
     /**
      * This method loads RDF data from the given inputStream in bulk, using the given format and baseURI as guides.
-     * 
+     *
      * Note that there must be a parser available in the list of currently loaded Sesame Rio parsers to match the given format.
-     * 
-     * @param stream The input stream containing RDF data
+     *
+     * @param inputStream The input stream containing RDF data
      * @param format The RDFFormat for the data in the input stream
      * @param baseUri The base URI to use for the load
      * @throws IOException Thrown if the stream fails for any reason.
@@ -262,14 +264,14 @@ public class LoaderMain
                 pusher.setFinished(true);
         }
     }
-    
+
     /**
      * Internal helper method that loads a single file using the given base URI.
-     * 
+     *
      * This method logs as errors, but does not throw RDFParseException, RDFHandlerException and UnsupportedRDFormatException that occur during the loading process.
-     * 
+     *
      * If you need these exceptions to be thrown, you can use loadInputStreamInternal directly.
-     * 
+     *
      * @param file
      * @param baseUri
      * @throws FileNotFoundException
@@ -281,10 +283,10 @@ public class LoaderMain
             throws FileNotFoundException, IOException, RepositoryException, SailException
     {
         final String name = file.getName();
-        
+
         String shortFileName = name;
         InputStream inputStream = null;
-        
+
         if (name.endsWith(".gz"))
         {
             inputStream = new GZIPInputStream(new FileInputStream(file));
@@ -303,7 +305,7 @@ public class LoaderMain
         }
 
         log.debug("parsing " + shortFileName + " using format " + format.toString());
-        
+
         try
         {
             loadInputStreamInternal(inputStream, format, baseUri);
@@ -325,7 +327,7 @@ public class LoaderMain
 
     /**
      * Internal helper method that loads RDF in bulk from the given InputStream using the given format and base URI.
-     * 
+     *
      * @param stream The input stream containing RDF data
      * @param format The RDFFormat for the data in the input stream
      * @param baseUri The base URI to use for the load
@@ -337,7 +339,7 @@ public class LoaderMain
      */
     private void loadInputStreamInternal(InputStream stream, RDFFormat format, String baseUri)
             throws IOException, RepositoryException, RDFParseException, RDFHandlerException, UnsupportedRDFormatException
-    {    
+    {
         RDFParser rdfParser = Rio.createParser(format);
         rdfParser.setValueFactory(manager.getValueFactory());
         rdfParser.setVerifyData(false);
