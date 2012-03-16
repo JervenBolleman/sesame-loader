@@ -54,5 +54,11 @@ public class ArbitraryRepositoryManager implements RepositoryManager
     {
         return this.upstreamRepository.getValueFactory();
     }
+
+    @Override
+    public Integer getMaximumThreads()
+    {
+        return 0;
+    }
     
 }

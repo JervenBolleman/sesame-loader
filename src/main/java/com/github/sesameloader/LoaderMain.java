@@ -83,7 +83,17 @@ public class LoaderMain
     public LoaderMain(RepositoryManager nextManager, Integer commitXStatements, Integer threads, Resource... contexts) throws SailException, RepositoryException
     {
         this.manager = nextManager;
-        exec = Executors.newFixedThreadPool(threads);
+        
+        if(nextManager.getMaximumThreads() == 0 || threads <= nextManager.getMaximumThreads())
+        {
+            exec = Executors.newFixedThreadPool(threads);
+        }
+        else
+        {
+            log.warn("Tried to select more than the maximum number of threads for the given repository manager");
+            throw new RuntimeException("Tried to select more than the maximum number of threads for the given repository manager");
+        }
+        
         isDone = new CountDownLatch(threads);
         createPushers(commitXStatements, threads, manager, contexts);
     }

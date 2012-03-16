@@ -63,4 +63,10 @@ public class OwlimRepositoryManager
     {
         return repository.getValueFactory();
     }
+
+    @Override
+    public Integer getMaximumThreads()
+    {
+        return 0;
+    }
 }

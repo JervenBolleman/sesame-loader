@@ -52,4 +52,10 @@ public class NativeRepositoryManager
         return repository.getValueFactory();
     }
 
+    @Override
+    public Integer getMaximumThreads()
+    {
+        return 0;
+    }
+    
 }
