@@ -11,27 +11,7 @@
 	<artifactId>sesame-loader-main</artifactId>
 	<packaging>jar</packaging>
 	<name>Sesame Bulk Loader</name>
-
 	<description>Bulk loader for sesame repositories</description>
-	<url>https://github.com/jervenbolleman</url>
-
-	<licenses>
-		<license>
-			<name>BSD-style</name>
-		</license>
-	</licenses>
-
-	<scm>
-		<developerConnection>git@github.com:jervenbolleman/sesame-loader.git</developerConnection>
-		<connection>git://github.com/jervenbolleman/sesame-loader.git</connection>
-		<url>https://github.com/jervenbolleman/sesame-loader</url>
-	</scm>
-
-	<properties>
-		<sesame.version>2.6.4</sesame.version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-	</properties>
 
 	<dependencies>
 
