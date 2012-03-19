@@ -13,4 +13,4 @@ for i in `find ~/.m2/ -name *.jar`;do
     cp="$cp:$i";
 done;
 
-java -classpath "target/sesame-loader-0.1.0-SNAPSHOT.jar$cp:conf/" loader -infile $1 -dataFile $2 -databaseProvider native -commitInterval $3 -pushThreads $4 -baseUri $5
+java -classpath "sesame-loader-main/target/sesame-loader-main-0.1.0-SNAPSHOT.jar$cp:conf/" loader -infile $1 -dataFile $2 -databaseProvider native -commitInterval $3 -pushThreads $4 -baseUri $5

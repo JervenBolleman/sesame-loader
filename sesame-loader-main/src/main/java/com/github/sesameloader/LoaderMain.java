@@ -37,8 +37,6 @@ import org.openrdf.sail.SailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.sesameloader.owlim.OwlimRepositoryManager;
-import com.github.sesameloader.sesame.NativeRepositoryManager;
 import java.util.concurrent.CountDownLatch;
 
 public class LoaderMain
@@ -161,13 +159,17 @@ public class LoaderMain
     public static RepositoryManager getRepositoryManager(File dataFileLocation, String databaseProvider)
             throws RepositoryException, SailException
     {
-
-        if ("native".equalsIgnoreCase(databaseProvider))
-            return new NativeRepositoryManager(dataFileLocation);
-        else if ("owlim".equalsIgnoreCase(databaseProvider))
-            return new OwlimRepositoryManager(dataFileLocation);
-        else
+        RepositoryManagerFactory factory = RepositoryManagerFactoryRegistry.getInstance().get(databaseProvider);
+        
+        if(factory == null)
+        {
             throw new RuntimeException("Don't know databaseProvider: "+databaseProvider);
+        }
+        else
+        {
+            // FIXME: Is the following the best way to do this?
+            return factory.createRepositoryManager(dataFileLocation.getAbsolutePath());
+        }
     }
 
     /**
