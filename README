@@ -4,10 +4,6 @@ Unfortunatly to get an OWLIM-se jar you need to contact ontotext.
 
 # HOW TO USE
 
-Run the following command to generate the launch scripts in sesame-loader-runtime/dist/bin/
-
- mvn clean package
-
 ## To use with a Sesame Native repository
 
 cd sesame-loader/
