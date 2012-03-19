@@ -46,6 +46,8 @@ public class RepositoryManagerFactoryRegistry
             if(putIfAbsent != null)
             {
                 LOG.error("RepositoryManagerFactory with key="+factory.getKey()+" class="+putIfAbsent.getClass().getName()+" replaced the factory="+factory.getClass().getName());
+                
+                services.put(factory.getKey(), factory);
             }
         }
     }
