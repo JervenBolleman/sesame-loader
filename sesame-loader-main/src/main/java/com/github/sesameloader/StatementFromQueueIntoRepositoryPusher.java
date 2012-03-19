@@ -81,7 +81,7 @@ public class StatementFromQueueIntoRepositoryPusher
 					if (counter % commitEveryStatements == 0)
 					{
 						if (log.isDebugEnabled())
-							log.debug("Commiting into the connection pusher");
+							log.debug("Committing into the connection pusher");
 						connection.commit();
 					}
 
