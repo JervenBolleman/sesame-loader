@@ -19,6 +19,7 @@
 		<dependency>
 			<groupId>com.github</groupId>
 			<artifactId>owlim-shim</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.kohsuke.metainf-services</groupId>
