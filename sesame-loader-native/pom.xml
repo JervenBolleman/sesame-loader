@@ -9,6 +9,7 @@
 	</parent>
 	<artifactId>sesame-loader-native</artifactId>
 	<name>Sesame Loader module for Native Sesame Repositories</name>
+	<description>Module to enable access to Native Sesame Repositories in Sesame Loader</description>
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
