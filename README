@@ -4,24 +4,24 @@ Unfortunatly to get an OWLIM-se jar you need to contact ontotext.
 
 # HOW TO USE
 
-Run the following command to generate the launch scripts in dist/bin/
+Run the following command to generate the launch scripts in sesame-loader-runtime/dist/bin/
 
  mvn clean package
 
 ## To use with a Sesame Native repository
 
 cd sesame-loader/
-sh dist/bin/load-sesame-native -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5
+./load.sh -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5
 
 ## To use with an OWLIM repository
 
 cd sesame-loader/
 
-### Need to additionally copy the owlim jar files into dist/conf/ so they will be included on the classpath
-cp /path/to/owlim.jar dist/conf/owlim.jar
-cp /path/to/crypto.jar dist/conf/crypto.jar
+### Need to additionally copy the owlim jar files into sesame-loader-runtime/dist/conf/ so they will be included on the classpath
+cp /path/to/owlim.jar sesame-loader-runtime/dist/conf/owlim.jar
+cp /path/to/crypto.jar sesame-loader-runtime/dist/conf/crypto.jar
 
-sh dist/bin/load-owlim -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5
+./load_owlim.sh -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5
 
 Where $2 is the location on disk where OWLIM or Sesame Native should store their files. $3 is how often you want to commit to the backend. $4 is the number of threads you want to use. $5 is a baseUri i.e. http://purl.uniprot.org/uniprot/
 $1 is the file you are loading. 
