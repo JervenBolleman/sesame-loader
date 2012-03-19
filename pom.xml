@@ -227,6 +227,7 @@
 					</execution>
 					<execution>
 						<id>full-jar</id>
+						<inherited>false</inherited>
 						<goals>
 							<goal>jar</goal>
 						</goals>
@@ -245,6 +246,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-assembly-plugin</artifactId>
+				<inherited>false</inherited>
 				<configuration>
 					<archive>
 						<manifest>

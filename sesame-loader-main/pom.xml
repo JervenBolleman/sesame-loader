@@ -150,43 +150,6 @@
 						</manifestEntries>
 					</archive>
 				</configuration>
-				<executions>
-					<execution>
-						<id>test-jar</id>
-						<goals>
-							<goal>test-jar</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>full-jar</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-						<configuration>
-							<archive>
-								<manifest>
-									<addClasspath>true</addClasspath>
-									<mainClass>com.github.sesameloader.LoaderMain</mainClass>
-								</manifest>
-							</archive>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>com.github.sesameloader.LoaderMain</mainClass>
-						</manifest>
-					</archive>
-					<descriptors>
-						<descriptor>assembly.xml</descriptor>
-					</descriptors>
-				</configuration>
 			</plugin>
 
 			<plugin>
@@ -275,31 +238,4 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>aduna-releases</id>
-			<name>OpenRDF releases</name>
-			<layout>default</layout>
-			<url>http://repo.aduna-software.org/maven2/releases</url>
-		</repository>
-	</repositories>
-
-	<profiles>
-		<profile>
-			<id>metadatanet-deploy</id>
-			<distributionManagement>
-				<repository>
-					<id>maenad-releases</id>
-					<name>maenad-releases</name>
-					<url>http://maven.metadata.net/artifactory/libs-releases-local</url>
-				</repository>
-				<snapshotRepository>
-					<id>maenad-snapshots</id>
-					<name>maenad-snapshots</name>
-					<url>http://maven.metadata.net/artifactory/libs-snapshots-local</url>
-				</snapshotRepository>
-			</distributionManagement>
-		</profile>
-	</profiles>
 </project>
