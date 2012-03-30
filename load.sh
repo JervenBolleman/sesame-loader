@@ -6,11 +6,6 @@ set -o nounset
 usage="USAGE: $0 [input file] [database directory] [commit interval] [threads] [baseUri]"
 : ${5? $usage}
 
+mvn clean install
 
-mvn install
-cp="";
-for i in `find ~/.m2/ -name *.jar`;do
-    cp="$cp:$i";
-done;
-
-java -classpath "target/sesame-loader-0.1.0-SNAPSHOT.jar$cp:conf/" loader -infile $1 -dataFile $2 -databaseProvider native -commitInterval $3 -pushThreads $4 -baseUri $5
+sh sesame-loader-runtime/dist/bin/load-native -infile $1 -dataFile $2 -commitInterval $3 -pushThreads $4 -baseUri $5
