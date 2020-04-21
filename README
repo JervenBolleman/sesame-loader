@@ -1,3 +1,8 @@
+# Archived as obsolete
+
+There are many better tools out there!
+
+
 This is a small utility that uses multiple threads to load data into a RDF triple store using
 the sesame API. You can load it into a native store from sesame or with some work into OWLIM-se.
 Unfortunatly to get an OWLIM-se jar you need to contact ontotext. 
